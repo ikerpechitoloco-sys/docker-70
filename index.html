@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090611">
+<meta name="description" content="DOCKER 70 - Panel local de inteligencia digital y OSINT responsable">
+<link rel="manifest" href="manifest.json">
+<title>DOCKER 70</title>
+<style>
+:root{color-scheme:dark;--bg:#090611;--panel:#151020;--line:#392451;--violet:#b56cff;--muted:#b9a9c9}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#241039 0,#090611 55%);color:#f8f2ff;font:15px system-ui,sans-serif;min-height:100vh}
+header{padding:24px 18px 16px;border-bottom:1px solid var(--line)}h1{margin:0;color:#d6a8ff;letter-spacing:3px;font-size:27px}header p{margin:5px 0 0;color:var(--muted);font-size:13px}
+main{padding:16px;max-width:760px;margin:auto}.status{border:1px solid var(--line);background:#120c1d;border-radius:12px;padding:12px;margin-bottom:16px;color:#d8c6e8;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.module{background:linear-gradient(145deg,#1c1229,#100b18);border:1px solid var(--line);border-radius:14px;padding:15px;color:white;text-align:left;min-height:108px}
+.module b{display:block;color:#d7a5ff;margin:0 0 7px;font-size:15px}.module span{font-size:12px;color:#c5b5d3;line-height:1.4}
+section{display:none;margin-top:16px;background:#130d1e;border:1px solid var(--line);border-radius:14px;padding:16px}section.active{display:block}h2{margin:0 0 10px;color:#d7a5ff;font-size:19px}
+input,textarea,button.action{width:100%;border-radius:9px;border:1px solid #53356d;background:#0c0813;color:white;padding:12px;font:inherit;margin:7px 0}
+button.action{background:#6c2aa5;border:0;font-weight:650}
+a{color:#d9aaff;overflow-wrap:anywhere}.small{font-size:12px;color:var(--muted)}.result{padding:10px;border:1px solid #392451;border-radius:9px;margin-top:9px;overflow-wrap:anywhere}
+footer{padding:22px 16px;color:#8f7e9e;text-align:center;font-size:11px}
+@media(min-width:560px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header><h1>DOCKER 70</h1><p>INTELIGENCIA DIGITAL · OSINT RESPONSABLE</p></header>
+<main>
+<div class="status" id="status">● Interfaz cargada · Almacenamiento local disponible en este dispositivo.</div>
+<div class="grid">
+<button class="module" data-target="user"><b>01 · USER FINDER</b><span>Buscar alias en fuentes públicas.</span></button>
+<button class="module" data-target="email"><b>02 · EMAIL INTEL</b><span>Validar formato y revisar dominio.</span></button>
+<button class="module" data-target="web"><b>03 · WEB INTEL</b><span>Abrir consultas técnicas de dominios.</span></button>
+<button class="module" data-target="map"><b>04 · CONNECTION MAP</b><span>Guardar relaciones y notas de un caso.</span></button>
+<button class="module" data-target="foot"><b>05 · DIGITAL FOOTPRINT</b><span>Lista de comprobación de privacidad.</span></button>
+<button class="module" data-target="cases"><b>06 · CASE FILES</b><span>Guardar y exportar notas localmente.</span></button>
+<button class="module" data-target="live"><b>07 · LIVE INTEL</b><span>Estado básico de la aplicación.</span></button>
+</div>
+<section id="user"><h2>USER FINDER</h2><p class="small">Busca únicamente perfiles y publicaciones públicas. No confirma que dos cuentas pertenezcan a la misma persona.</p><input id="alias" placeholder="Introduce un alias público"><button class="action" onclick="searchAlias()">Buscar en fuentes</button><div id="userout"></div></section>
+<section id="email"><h2>EMAIL INTEL</h2><p class="small">Comprobación local del formato. No consulta filtraciones ni revela información privada.</p><input id="emailval" type="email" placeholder="correo@dominio.com"><button class="action" onclick="checkEmail()">Validar formato</button><div id="emailout"></div></section>
+<section id="web"><h2>WEB INTEL</h2><p class="small">Introduce un dominio público para abrir consultas externas. Los resultados se muestran en los servicios consultados, no dentro de esta demo.</p><input id="domain" placeholder="ejemplo.com"><button class="action" onclick="lookupDomain()">Abrir consultas DNS / WHOIS</button><div id="webout"></div></section>
+<section id="map"><h2>CONNECTION MAP</h2><p class="small">Añade relaciones observadas manualmente. Marca claramente las hipótesis.</p><input id="nodeA" placeholder="Elemento A"><input id="nodeB" placeholder="Elemento B"><textarea id="relation" placeholder="Relación observada / fuente / nivel de certeza"></textarea><button class="action" onclick="saveRelation()">Guardar relación</button><div id="mapout"></div></section>
+<section id="foot"><h2>DIGITAL FOOTPRINT</h2><p>Lista básica para revisar tus propias cuentas:</p><label><input type="checkbox"> Activar autenticación en dos pasos</label><br><label><input type="checkbox"> Revisar sesiones abiertas</label><br><label><input type="checkbox"> Revisar permisos de aplicaciones</label><br><label><input type="checkbox"> Limitar información pública del perfil</label><br><label><input type="checkbox"> Actualizar contraseñas reutilizadas</label></section>
+<section id="cases"><h2>CASE FILES</h2><input id="casename" placeholder="Nombre del caso"><textarea id="casenote" placeholder="Notas del caso"></textarea><button class="action" onclick="saveCase()">Guardar en este dispositivo</button><button class="action" onclick="exportCases()">Exportar casos JSON</button><div id="caseout"></div></section>
+<section id="live"><h2>LIVE INTEL</h2><div class="result">Interfaz: cargada<br>Almacenamiento: localStorage disponible<br>APIs externas: no configuradas<br>Automatización de búsquedas: no configurada</div><p class="small">Esta versión inicial no simula conexiones ni resultados. Para integraciones reales hará falta configurar servicios y, cuando corresponda, un backend seguro.</p></section>
+</main><footer>DOCKER 70 · Herramienta educativa para fuentes públicas y datos propios.</footer>
+<script>
+const $=id=>document.getElementById(id);
+document.querySelectorAll('.module').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));$(''+b.dataset.target).classList.add('active');}));
+function searchAlias(){let v=$('alias').value.trim();if(!v){$('userout').textContent='Introduce un alias.';return}let q=encodeURIComponent(v);let sites=[['GitHub','https://github.com/search?q='+q],['Reddit','https://www.reddit.com/search/?q='+q],['YouTube','https://www.youtube.com/results?search_query='+q],['X','https://x.com/search?q='+q],['Google (búsqueda pública)','https://www.google.com/search?q='+q]];$('userout').innerHTML=sites.map(x=>'<div class="result"><a target="_blank" rel="noopener" href="'+x[1]+'">'+x[0]+' ↗</a></div>').join('')}
+function checkEmail(){let v=$('emailval').value.trim();$('emailout').textContent=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)?'Formato aparentemente válido. Esto no verifica que exista ni que esté comprometido.':'El formato no parece válido.'}
+function lookupDomain(){let v=$('domain').value.trim().replace(/^https?:\/\//,'').split('/')[0];if(!v||!v.includes('.')){$('webout').textContent='Introduce un dominio válido.';return}let d=encodeURIComponent(v);$('webout').innerHTML='<div class="result"><a target="_blank" rel="noopener" href="https://dns.google/resolve?name='+d+'">Consultar DNS ↗</a></div><div class="result"><a target="_blank" rel="noopener" href="https://lookup.icann.org/en/lookup?name='+d+'">Consultar WHOIS ↗</a></div><div class="result"><a target="_blank" rel="noopener" href="https://crt.sh/?q='+d+'">Certificados públicos ↗</a></div>'}
+function getCases(){try{return JSON.parse(localStorage.getItem('d70_cases')||'[]')}catch(e){return []}}
+function saveCase(){let n=$('casename').value.trim(),t=$('casenote').value.trim();if(!n){$('caseout').textContent='Pon un nombre al caso.';return}let a=getCases();a.push({name:n,note:t,date:new Date().toISOString()});localStorage.setItem('d70_cases',JSON.stringify(a));$('caseout').textContent='Caso guardado en este dispositivo.'}
+function saveRelation(){let a=JSON.parse(localStorage.getItem('d70_relations')||'[]');a.push({a:$('nodeA').value,b:$('nodeB').value,relation:$('relation').value,date:new Date().toISOString()});localStorage.setItem('d70_relations',JSON.stringify(a));$('mapout').textContent='Relación guardada localmente.'}
+function exportCases(){let data=JSON.stringify({cases:getCases(),relations:JSON.parse(localStorage.getItem('d70_relations')||'[]')},null,2);let blob=new Blob([data],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='docker70-casos.json';a.click();URL.revokeObjectURL(url)}
+if('serviceWorker'in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body></html>
